@@ -2,21 +2,28 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 )
 
 func main() {
-	http.HandleFunc("/", indexHandler)
-	http.HandleFunc("/hello", helloHandler)
-	http.ListenAndServe(":8080", nil)
-}
-func indexHandler(resp http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(resp, "URL.Path = %q", req.URL.Path)
+	engine := new(Engine)
+	log.Fatal(http.ListenAndServe(":8080", engine))
 }
 
-func helloHandler(resp http.ResponseWriter, req *http.Request) {
-	for k, v := range req.Header {
-		fmt.Fprintf(resp, "Header[%q] = %q\n", k, v)
+type Engine struct {
+}
+
+func (engine *Engine) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
+	switch req.URL.Path {
+	case "/":
+		fmt.Fprintf(resp, "URL.Path = %q\n", req.URL.Path)
+	case "/hello":
+		for k, v := range req.Header {
+			fmt.Fprintf(resp, "Header[%q] = %q\n", k, v)
+		}
+	default:
+		fmt.Fprintf(resp, "404 NOT FOUND: %s\n", req.URL)
 	}
 }
 
@@ -29,4 +36,7 @@ func helloHandler(resp http.ResponseWriter, req *http.Request) {
 	Header["Postman-Token"] = ["34ed4dd7-4ba8-48c5-aed2-748504ceb54a"]
 	Header["Accept-Encoding"] = ["gzip, deflate, br"]
 	Header["Connection"] = ["keep-alive"]
+
+3. GET 127.0.0.1:8080/world
+	404 NOT FOUND: /world
 */
