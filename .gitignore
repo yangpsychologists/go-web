@@ -21,4 +21,9 @@
 go.work
 
 # GoLang
+.DS_Store
 .idea
+.vscode
+tmp
+*.db
+*.sum
