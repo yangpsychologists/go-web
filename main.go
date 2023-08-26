@@ -2,29 +2,21 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"go-web/gee"
 	"net/http"
 )
 
 func main() {
-	engine := new(Engine)
-	log.Fatal(http.ListenAndServe(":8080", engine))
-}
-
-type Engine struct {
-}
-
-func (engine *Engine) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
-	switch req.URL.Path {
-	case "/":
+	r := gee.New()
+	r.GET("/", func(resp http.ResponseWriter, req *http.Request) {
 		fmt.Fprintf(resp, "URL.Path = %q\n", req.URL.Path)
-	case "/hello":
+	})
+	r.GET("/hello", func(resp http.ResponseWriter, req *http.Request) {
 		for k, v := range req.Header {
 			fmt.Fprintf(resp, "Header[%q] = %q\n", k, v)
 		}
-	default:
-		fmt.Fprintf(resp, "404 NOT FOUND: %s\n", req.URL)
-	}
+	})
+	r.Run(":8080")
 }
 
 /*
@@ -39,4 +31,9 @@ func (engine *Engine) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 
 3. GET 127.0.0.1:8080/world
 	404 NOT FOUND: /world
+
+4. Log
+	2023/08/27 02:54:54 Route  GET - /
+	2023/08/27 02:54:54 Route  GET - /hello
+
 */
